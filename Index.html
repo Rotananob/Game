@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ហ្គេមបាញ់គ្នា</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-box {
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .info-box h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: #fdbb2d;
+        }
+        
+        .info-box p {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #fdbb2d;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .player {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #4CAF50;
+            border-radius: 50%;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px #4CAF50;
+            transition: all 0.1s;
+        }
+        
+        .bullet {
+            position: absolute;
+            width: 8px;
+            height: 20px;
+            background: #ffeb3b;
+            border-radius: 4px;
+            box-shadow: 0 0 8px #ffeb3b;
+        }
+        
+        .enemy {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #f44336;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #f44336;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1rem;
+            background: #fdbb2d;
+            color: #1a2a6c;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            background: #ffcc44;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .instructions {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #fdbb2d;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            list-style-type: none;
+            padding-left: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .instructions li:before {
+            content: "•";
+            color: #fdbb2d;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            display: none;
+        }
+        
+        .game-over h2 {
+            font-size: 3rem;
+            color: #f44336;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+        }
+        
+        .game-over p {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-area {
+                height: 300px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ហ្គេមបាញ់គ្នា</h1>
+        <p class="subtitle">បាញ់សត្រូវ ជៀសវាងគ្រាប់បែក!</p>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <h3>ពិន្ទុ</h3>
+                <p id="score">0</p>
+            </div>
+            <div class="info-box">
+                <h3>ជីវិត</h3>
+                <p id="lives">3</p>
+            </div>
+            <div class="info-box">
+                <h3>កម្រិត</h3>
+                <p id="level">1</p>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea">
+            <div class="player" id="player"></div>
+            <div class="game-over" id="gameOver">
+                <h2>ហ្គេមចប់!</h2>
+                <p>ពិន្ទុរបស់អ្នក: <span id="finalScore">0</span></p>
+                <button id="restartBtn">លេងម្តងទៀត</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="leftBtn">ឆ្វេង</button>
+            <button id="shootBtn">បាញ់</button>
+            <button id="rightBtn">ស្ដាំ</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>ការណែនាំ</h3>
+            <ul>
+                <li>ប្រើប៊ូតុង "ឆ្វេង" និង "ស្ដាំ" ដើម្បីផ្លាស់ទីអ្នកលេង</li>
+                <li>ចុចប៊ូតុង "បាញ់" ដើម្បីបាញ់សត្រូវ</li>
+                <li>ជៀសវាងការប៉ះទង្គិចជាមួយសត្រូវ</li>
+                <li>ប្រមូលពិន្ទុដោយបាញ់សត្រូវបានច្រើនតាមដែលអាចធ្វើបាន</li>
+                <li>ប្រើគ្រាប់ចុច A (ឆ្វេង), D (ស្ដាំ), W (ទៅមុខ), S (ថយក្រោយ) និង ម៉ៅសឆ្វេង (បាញ់)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // កំណត់អថេរសម្រាប់ហ្គេម
+        const gameArea = document.getElementById('gameArea');
+        const player = document.getElementById('player');
+        const scoreDisplay = document.getElementById('score');
+        const livesDisplay = document.getElementById('lives');
+        const levelDisplay = document.getElementById('level');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreDisplay = document.getElementById('finalScore');
+        const restartBtn = document.getElementById('restartBtn');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+        const shootBtn = document.getElementById('shootBtn');
+        
+        let score = 0;
+        let lives = 3;
+        let level = 1;
+        let playerX = gameArea.offsetWidth / 2 - 25;
+        let playerY = gameArea.offsetHeight - 70; // ទីតាំងបឋមនៅខាងក្រោម
+        let isMovingLeft = false;
+        let isMovingRight = false;
+        let isMovingUp = false;
+        let isMovingDown = false;
+        let bullets = [];
+        let enemies = [];
+        let enemySpeed = 2;
+        let enemySpawnRate = 1000; // milliseconds
+        let gameInterval;
+        let enemyInterval;
+        
+        // កំណត់ទីតាំងដំបូងរបស់អ្នកលេង
+        player.style.left = playerX + 'px';
+        player.style.bottom = '20px';
+        
+        // ការគ្រប់គ្រងចលនារបស់អ្នកលេង
+        leftBtn.addEventListener('mousedown', () => isMovingLeft = true);
+        leftBtn.addEventListener('mouseup', () => isMovingLeft = false);
+        leftBtn.addEventListener('touchstart', () => isMovingLeft = true);
+        leftBtn.addEventListener('touchend', () => isMovingLeft = false);
+        
+        rightBtn.addEventListener('mousedown', () => isMovingRight = true);
+        rightBtn.addEventListener('mouseup', () => isMovingRight = false);
+        rightBtn.addEventListener('touchstart', () => isMovingRight = true);
+        rightBtn.addEventListener('touchend', () => isMovingRight = false);
+        
+        // ការបាញ់
+        shootBtn.addEventListener('click', shoot);
+        
+        // ការគ្រប់គ្រងដោយគ្រាប់ចុច
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'a' || e.key === 'A') {
+                isMovingLeft = true;
+            } else if (e.key === 'd' || e.key === 'D') {
+                isMovingRight = true;
+            } else if (e.key === 'w' || e.key === 'W') {
+                isMovingUp = true;
+            } else if (e.key === 's' || e.key === 'S') {
+                isMovingDown = true;
+            } else if (e.key === ' ') {
+                shoot();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'a' || e.key === 'A') {
+                isMovingLeft = false;
+            } else if (e.key === 'd' || e.key === 'D') {
+                isMovingRight = false;
+            } else if (e.key === 'w' || e.key === 'W') {
+                isMovingUp = false;
+            } else if (e.key === 's' || e.key === 'S') {
+                isMovingDown = false;
+            }
+        });
+        
+        // ការបាញ់ដោយម៉ៅស
+        gameArea.addEventListener('click', (e) => {
+            if (e.button === 0) { // ម៉ៅសឆ្វេង
+                shoot();
+            }
+        });
+        
+        // ការចាប់ផ្តើមហ្គេម
+        function startGame() {
+            score = 0;
+            lives = 3;
+            level = 1;
+            playerX = gameArea.offsetWidth / 2 - 25;
+            playerY = gameArea.offsetHeight - 70;
+            player.style.left = playerX + 'px';
+            player.style.bottom = '20px';
+            
+            scoreDisplay.textContent = score;
+            livesDisplay.textContent = lives;
+            levelDisplay.textContent = level;
+            
+            gameOverScreen.style.display = 'none';
+            
+            // សម្អាតសត្រូវ និងគ្រាប់បាញ់ចាស់
+            bullets.forEach(bullet => bullet.remove());
+            enemies.forEach(enemy => enemy.remove());
+            bullets = [];
+            enemies = [];
+            
+            // ចាប់ផ្តើមកាលវិភាគហ្គេម
+            gameInterval = setInterval(updateGame, 20);
+            enemyInterval = setInterval(spawnEnemy, enemySpawnRate);
+        }
+        
+        // ធ្វើបច្ចុប្បន្នភាពហ្គេម
+        function updateGame() {
+            movePlayer();
+            moveBullets();
+            moveEnemies();
+            checkCollisions();
+            updateLevel();
+        }
+        
+        // ផ្លាស់ទីអ្នកលេង
+        function movePlayer() {
+            if (isMovingLeft && playerX > 0) {
+                playerX -= 5;
+            }
+            if (isMovingRight && playerX < gameArea.offsetWidth - 50) {
+                playerX += 5;
+            }
+            if (isMovingUp && playerY < gameArea.offsetHeight - 50) {
+                playerY += 5;
+            }
+            if (isMovingDown && playerY > 0) {
+                playerY -= 5;
+            }
+            
+            player.style.left = playerX + 'px';
+            player.style.bottom = playerY + 'px';
+        }
+        
+        // បង្កើតគ្រាប់បាញ់
+        function shoot() {
+            const bullet = document.createElement('div');
+            bullet.className = 'bullet';
+            bullet.style.left = (playerX + 21) + 'px';
+            bullet.style.bottom = (playerY + 50) + 'px';
+            gameArea.appendChild(bullet);
+            bullets.push(bullet);
+        }
+        
+        // ផ្លាស់ទីគ្រាប់បាញ់
+        function moveBullets() {
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const bullet = bullets[i];
+                const bottom = parseInt(bullet.style.bottom) || 70;
+                bullet.style.bottom = (bottom + 10) + 'px';
+                
+                // លុបគ្រាប់បាញ់នៅពេលវាចេញពីអេក្រង់
+                if (bottom > gameArea.offsetHeight) {
+                    bullet.remove();
+                    bullets.splice(i, 1);
+                }
+            }
+        }
+        
+        // បង្កើតសត្រូវ
+        function spawnEnemy() {
+            const enemy = document.createElement('div');
+            enemy.className = 'enemy';
+            enemy.style.left = Math.random() * (gameArea.offsetWidth - 40) + 'px';
+            enemy.style.top = '0px';
+            gameArea.appendChild(enemy);
+            enemies.push(enemy);
+        }
+        
+        // ផ្លាស់ទីសត្រូវ
+        function moveEnemies() {
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const enemy = enemies[i];
+                const top = parseInt(enemy.style.top) || 0;
+                enemy.style.top = (top + enemySpeed) + 'px';
+                
+                // លុបសត្រូវនៅពេលវាចេញពីអេក្រង់
+                if (top > gameArea.offsetHeight) {
+                    enemy.remove();
+                    enemies.splice(i, 1);
+                }
+            }
+        }
+        
+        // ពិនិត្យការប៉ះទង្គិច
+        function checkCollisions() {
+            // ពិនិត្យការប៉ះទង្គិចរវាងគ្រាប់បាញ់និងសត្រូវ
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const bullet = bullets[i];
+                const bulletRect = bullet.getBoundingClientRect();
+                
+                for (let j = enemies.length - 1; j >= 0; j--) {
+                    const enemy = enemies[j];
+                    const enemyRect = enemy.getBoundingClientRect();
+                    
+                    if (bulletRect.left < enemyRect.right &&
+                        bulletRect.right > enemyRect.left &&
+                        bulletRect.top < enemyRect.bottom &&
+                        bulletRect.bottom > enemyRect.top) {
+                        
+                        // បាញ់ត្រូវសត្រូវ
+                        bullet.remove();
+                        bullets.splice(i, 1);
+                        enemy.remove();
+                        enemies.splice(j, 1);
+                        
+                        score += 10;
+                        scoreDisplay.textContent = score;
+                        break;
+                    }
+                }
+            }
+            
+            // ពិនិត្យការប៉ះទង្គិចរវាងអ្នកលេងនិងសត្រូវ
+            const playerRect = player.getBoundingClientRect();
+            
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const enemy = enemies[i];
+                const enemyRect = enemy.getBoundingClientRect();
+                
+                if (playerRect.left < enemyRect.right &&
+                    playerRect.right > enemyRect.left &&
+                    playerRect.top < enemyRect.bottom &&
+                    playerRect.bottom > enemyRect.top) {
+                    
+                    // ប៉ះសត្រូវ
+                    enemy.remove();
+                    enemies.splice(i, 1);
+                    
+                    lives--;
+                    livesDisplay.textContent = lives;
+                    
+                    if (lives <= 0) {
+                        gameOver();
+                    }
+                }
+            }
+        }
+        
+        // ធ្វើបច្ចុប្បន្នភាពកម្រិត
+        function updateLevel() {
+            const newLevel = Math.floor(score / 100) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                levelDisplay.textContent = level;
+                
+                // បង្កើនល្បឿនសត្រូវ
+                enemySpeed = 2 + (level * 0.5);
+                
+                // បង្កើនអត្រាការបង្កើតសត្រូវ
+                clearInterval(enemyInterval);
+                enemySpawnRate = Math.max(300, 1000 - (level * 100));
+                enemyInterval = setInterval(spawnEnemy, enemySpawnRate);
+            }
+        }
+        
+        // ហ្គេមចប់
+        function gameOver() {
+            clearInterval(gameInterval);
+            clearInterval(enemyInterval);
+            
+            finalScoreDisplay.textContent = score;
+            gameOverScreen.style.display = 'flex';
+        }
+        
+        // ចាប់ផ្តើមហ្គេមឡើងវិញ
+        restartBtn.addEventListener('click', startGame);
+        
+        // ចាប់ផ្តើមហ្គេម
+        startGame();
+    </script>
+</body>
+</html>
